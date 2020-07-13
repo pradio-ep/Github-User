@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Github User</string>
+    <string name="search">Search</string>
+    <string name="not_found">Not Found</string>
+    <string name="error_blank">Please fill the text first</string>
+    <string name="end_of_result">End of Result</string>
 </resources>

@@ -6,16 +6,43 @@
             name="vm"
             type="com.pradioep.githubuser.view.main.MainViewModel" />
     </data>
-    <RelativeLayout
+    <LinearLayout
         android:id="@+id/view_parent"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
         <include
             layout="@layout/toolbar" />
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_centerInParent="true"
-            android:text="@={vm.result}"/>
-    </RelativeLayout>
+            android:padding="@dimen/space_x2">
+            <androidx.appcompat.widget.SearchView
+                android:id="@+id/sv_text"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.7"/>
+            <Button
+                android:id="@+id/btn_search"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"
+                android:onClick="@{()->vm.onClickSearch()}"
+                android:text="@string/search"/>
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tv_not_found"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:visibility="@{safeUnbox(vm.isNotFoundVisible) == false ? View.GONE : View.VISIBLE}"
+            android:textSize="32sp"
+            android:text="@string/not_found"/>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_user"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="@dimen/space_x2"
+            android:visibility="@{safeUnbox(vm.isListUserVisible) == false ? View.GONE : View.VISIBLE}" />
+    </LinearLayout>
 </layout>
