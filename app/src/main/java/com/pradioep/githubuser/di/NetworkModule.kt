@@ -4,7 +4,9 @@ import android.content.Context
 import com.google.gson.FieldNamingPolicy
 import com.google.gson.GsonBuilder
 import com.haroldadmin.cnradapter.NetworkResponseAdapterFactory
+import com.pradioep.githubuser.R
 import com.pradioep.githubuser.repository.MainService
+import com.pradioep.githubuser.util.ApiInterceptor
 import okhttp3.Cache
 import okhttp3.ConnectionSpec
 import okhttp3.OkHttpClient
@@ -18,12 +20,14 @@ import java.util.concurrent.TimeUnit
 
 val NetworkModule = module {
     single { createOkHttpClient(get()) }
-    single { createWebService<MainService>(get()) }
+    single { createWebService<MainService>(get(), get()) }
 }
 
 fun createOkHttpClient(applicationContext: Context): OkHttpClient {
     val httpLoggingInterceptor = HttpLoggingInterceptor()
     httpLoggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
+
+    val apiInterceptor = ApiInterceptor(applicationContext)
 
     val httpCacheDirectory = File(applicationContext.cacheDir, "http-cache")
     val cacheSize = 10 * 1024 * 1024 // 10 MiB
@@ -34,12 +38,13 @@ fun createOkHttpClient(applicationContext: Context): OkHttpClient {
         .readTimeout(30, TimeUnit.SECONDS)
         .writeTimeout(30, TimeUnit.SECONDS)
         .addInterceptor(httpLoggingInterceptor)
+        .addInterceptor(apiInterceptor)
         .cache(cache)
         .connectionSpecs(listOf(ConnectionSpec.COMPATIBLE_TLS))
         .build()
 }
 
-inline fun <reified T> createWebService(okHttpClient: OkHttpClient): T {
+inline fun <reified T> createWebService(applicationContext: Context, okHttpClient: OkHttpClient): T {
     val gson = GsonBuilder()
         .enableComplexMapKeySerialization()
         .serializeNulls()
@@ -50,7 +55,7 @@ inline fun <reified T> createWebService(okHttpClient: OkHttpClient): T {
         .create()
 
     val retrofit = Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
+        .baseUrl(applicationContext.getString(R.string.github_api_url))
         .client(okHttpClient)
         .addConverterFactory(ScalarsConverterFactory.create())
         .addConverterFactory(GsonConverterFactory.create(gson))
